@@ -60,10 +60,10 @@ rerun_viewer = nova.viewers.Rerun()
 async def start(
     ctx: nova.ProgramContext,
     from_pocket: int = Field(
-        default=6, ge=1, le=6, description="Pocket (1-6) to pick from"
+        default=5, ge=1, le=6, description="Pocket (1-6) to pick from"
     ),
     to_pocket: int = Field(
-        default=2, ge=1, le=6, description="Pocket (1-6) to place into"
+        default=1, ge=1, le=6, description="Pocket (1-6) to place into"
     ),
     grip_depth: float = Field(
         default=20,
