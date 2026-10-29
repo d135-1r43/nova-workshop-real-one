@@ -2,12 +2,11 @@
 Picking two blocks out of a rail and placing them into a pocket plate with a
 virtual ABB IRB 1200-7/0.7 robot and a Zimmer GEH6060 parallel gripper.
 
-The robot behaves a little like a curious helper:
-- Wakes up and waves hello
+The robot:
 - Peeks at each block (a small nod) before it picks it
 - Grips the block, lifts it straight out of the rail and hops over to the plate
 - Sets the block down gently into its pocket and nods proudly
-- Wiggles happily when both blocks are placed and returns home
+- Returns home when both blocks are placed
 
 Geometry (robot base coordinates in mm, z = 0 is the table top):
 - The blocks stand in a rail running along the y-axis. Each block is 49 (x) by
@@ -24,10 +23,9 @@ import math
 import os
 import sys
 
+import nova
 import rerun as rr
 import rerun.blueprint as rrb
-
-import nova
 from nova import api, run_program
 from nova.actions import circular, io_write, joint_ptp, linear, wait
 from nova.cell import virtual_controller
@@ -97,9 +95,6 @@ async def start(
         default="digital_out[0]",
         description="Digital output that closes the gripper (on) and opens it (off)",
     ),
-    say_hello: bool = Field(
-        default=False, description="Wave hello and wiggle happily at the end"
-    ),
 ):
     """Pick both blocks from the rail and place them into the pocket plate."""
     if block1_pocket == block2_pocket:
@@ -148,18 +143,8 @@ async def start(
 
     actions = [joint_ptp(home_joints, settings=travel), io_write(gripper_io, False)]
 
-    if say_hello:
-        hello = gripper_at(380, -60, 380)
-        actions.append(linear(hello, settings=travel))
-        for _ in range(2):  # Wave by tilting the gripper sideways
-            actions += [
-                linear(tilted(hello, about_x_deg=25), settings=playful),
-                linear(tilted(hello, about_x_deg=-25), settings=playful),
-            ]
-        actions.append(linear(hello, settings=playful))
-
     targets = [block1_pocket, block2_pocket]
-    for i, ((bx, by, bz), pocket) in enumerate(zip(BLOCKS, targets), start=1):
+    for (bx, by, bz), pocket in zip(BLOCKS, targets, strict=True):
         px, py = POCKETS[pocket - 1]
         grip = gripper_at(bx, by, bz + BLOCK_HEIGHT - grip_depth)
         above_block = gripper_at(bx, by, carry_z)
@@ -185,20 +170,6 @@ async def start(
             linear(above_pocket, settings=approach),
             *nod(above_pocket, angle_deg=-12),  # Proud nod
         ]
-
-    if say_hello:
-        happy = gripper_at(380, 260, carry_z + 60)
-        actions.append(linear(happy, settings=travel))
-        for _ in range(3):  # Happy wiggle about the gripper axis
-            actions += [
-                linear(
-                    happy @ Pose((0, 0, 0, 0, 0, math.radians(30))), settings=playful
-                ),
-                linear(
-                    happy @ Pose((0, 0, 0, 0, 0, math.radians(-30))), settings=playful
-                ),
-            ]
-        actions.append(linear(happy, settings=playful))
 
     actions.append(joint_ptp(home_joints, settings=travel))
 

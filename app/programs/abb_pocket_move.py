@@ -15,10 +15,9 @@ import math
 import os
 import sys
 
+import nova
 import rerun as rr
 import rerun.blueprint as rrb
-
-import nova
 from nova import api, run_program
 from nova.actions import io_write, joint_ptp, linear, wait
 from nova.cell import virtual_controller
@@ -60,8 +59,12 @@ rerun_viewer = nova.viewers.Rerun()
 )
 async def start(
     ctx: nova.ProgramContext,
-    from_pocket: int = Field(default=6, ge=1, le=6, description="Pocket (1-6) to pick from"),
-    to_pocket: int = Field(default=2, ge=1, le=6, description="Pocket (1-6) to place into"),
+    from_pocket: int = Field(
+        default=6, ge=1, le=6, description="Pocket (1-6) to pick from"
+    ),
+    to_pocket: int = Field(
+        default=2, ge=1, le=6, description="Pocket (1-6) to place into"
+    ),
     grip_depth: float = Field(
         default=20,
         gt=0,
@@ -69,7 +72,9 @@ async def start(
         description="How far the fingertips reach down from the block top in mm",
     ),
     hover_height: float = Field(
-        default=100, gt=0, description="Height of the fingertips above the grip point while moving in mm"
+        default=100,
+        gt=0,
+        description="Height of the fingertips above the grip point while moving in mm",
     ),
     tool_length: float = Field(
         default=104, gt=0, description="Distance from flange to fingertips in mm"
@@ -147,10 +152,14 @@ async def start(
 
     # Protect the cable: no joint may turn far away from home
     for i, home in enumerate(home_joints):
-        turn = max(abs(math.degrees(p[i] - home)) for p in joint_trajectory.joint_positions)
+        turn = max(
+            abs(math.degrees(p[i] - home)) for p in joint_trajectory.joint_positions
+        )
         print(f"A{i + 1} turns up to {turn:.0f} deg away from home")
         if turn > max_joint_turn_deg:
-            raise RuntimeError(f"A{i + 1} would turn {turn:.0f} deg (limit {max_joint_turn_deg:.0f})")
+            raise RuntimeError(
+                f"A{i + 1} would turn {turn:.0f} deg (limit {max_joint_turn_deg:.0f})"
+            )
 
     # Stream the live robot state into Rerun and follow it
     bridge = rerun_viewer.get_bridge()

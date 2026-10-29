@@ -5,7 +5,6 @@ from decouple import config
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-
 from nova import Novax
 
 CELL_NAME = config("CELL_NAME", default="cell", cast=str)

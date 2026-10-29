@@ -25,10 +25,9 @@ import math
 import os
 import sys
 
+import nova
 import rerun as rr
 import rerun.blueprint as rrb
-
-import nova
 from nova import run_program
 from nova.actions import collision_free, linear
 from nova.types import MotionSettings, Pose
