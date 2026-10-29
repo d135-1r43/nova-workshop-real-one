@@ -1,0 +1,29 @@
+[project]
+name = "app"
+version = "0.0.1"
+description = ""
+requires-python = ">=3.12"
+readme = "README.md"
+dependencies = [
+    "wandelbots-nova[novax,nova-rerun-bridge]>=6.0.0,<7",
+    "python-decouple~=3.8",
+    "requests>=2.32.3,<3",
+]
+
+[project.scripts]
+app = "app.register_programs:main"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.21",
+    # Enables fast file watching for `uvicorn --reload` (Skaffold hot-reload loop).
+    "watchfiles>=0.24",
+]
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
